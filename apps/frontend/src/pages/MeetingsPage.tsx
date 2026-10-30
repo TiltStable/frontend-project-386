@@ -1,6 +1,7 @@
 import { Container, Loader, Stack, Text, Title } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { meetingsList, type Meeting } from "../api-client";
+import { getErrorMessage } from "../errors";
 
 const startFormatter = new Intl.DateTimeFormat("ru-RU", {
   dateStyle: "long",
@@ -14,7 +15,11 @@ export default function MeetingsPage() {
 
   useEffect(() => {
     meetingsList()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error !== undefined) {
+          setError(getErrorMessage(error));
+          return;
+        }
         setMeetings(data ?? []);
       })
       .catch((reason: unknown) => {

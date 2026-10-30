@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
+  reporter: [["list"], ["html", { open: "never" }]],
   webServer: [
     {
       command: "npm run dev:backend",

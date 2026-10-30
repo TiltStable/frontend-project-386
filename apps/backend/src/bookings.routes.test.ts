@@ -114,6 +114,12 @@ describe("POST /api/bookings", () => {
     ["not a date", { eventTypeId: "intro-call", start: "not-a-date" }, 400],
     ["no utc offset", { eventTypeId: "intro-call", start: "2026-11-02T09:00:00" }, 400],
     [
+      "nonexistent date rolls over",
+      { eventTypeId: "intro-call", start: "2026-09-31T09:00:00+03:00" },
+      400,
+    ],
+    ["hour out of range", { eventTypeId: "intro-call", start: "2026-11-02T24:00:00+03:00" }, 400],
+    [
       "off the 15-minute grid",
       { eventTypeId: "intro-call", start: "2026-11-02T09:07:00+03:00" },
       400,

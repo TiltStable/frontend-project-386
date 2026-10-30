@@ -6,6 +6,7 @@ import {
   eventTypesList,
   type EventType,
 } from "../api-client";
+import { getErrorMessage } from "../errors";
 
 const dayFormatter = new Intl.DateTimeFormat("ru-RU", {
   weekday: "long",
@@ -33,7 +34,11 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
 
   const loadSlots = useCallback(() => {
     availableSlotsApiList({ query: { eventTypeId: eventType.id } })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error !== undefined) {
+          setError(getErrorMessage(error));
+          return;
+        }
         setSlots(data?.slots ?? []);
       })
       .catch((reason: unknown) => {
@@ -55,7 +60,11 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
             message: `Вы записаны: ${eventType.title}, ${dayFormatter.format(new Date(slot))} в ${timeFormatter.format(new Date(slot))}.`,
           });
           return availableSlotsApiList({ query: { eventTypeId: eventType.id } }).then(
-            ({ data: fresh }) => {
+            ({ data: fresh, error: refreshError }) => {
+              if (refreshError !== undefined) {
+                setError(getErrorMessage(refreshError));
+                return;
+              }
               setSlots(fresh?.slots ?? []);
             },
           );
@@ -121,7 +130,11 @@ export default function BookPage() {
 
   useEffect(() => {
     eventTypesList()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error !== undefined) {
+          setError(getErrorMessage(error));
+          return;
+        }
         setEventTypes(data ?? []);
       })
       .catch((reason: unknown) => {

@@ -50,4 +50,15 @@ describe("MeetingsPage", () => {
 
     expect(await screen.findByText("Предстоящих встреч нет.")).toBeTruthy();
   });
+
+  it("shows an error when loading meetings fails", async () => {
+    mockedMeetingsList.mockResolvedValue({ error: "Internal Server Error" } as never);
+
+    renderWithProviders(<MeetingsPage />);
+
+    expect(
+      await screen.findByText("Не удалось загрузить встречи: Internal Server Error"),
+    ).toBeTruthy();
+    expect(screen.queryByText("Предстоящих встреч нет.")).toBeNull();
+  });
 });

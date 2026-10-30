@@ -40,15 +40,34 @@ export function formatOffsetDateTime(ms: number): string {
   );
 }
 
-/** Strict ISO 8601 date-time with an explicit offset (Z or +hh:mm); null otherwise. */
+/** Strict ISO 8601 date-time with an explicit offset (Z or +hh:mm); null otherwise.
+ *  Calendar components are validated: Date.parse alone rolls nonexistent
+ *  dates (2026-09-31 -> 2026-10-01) instead of rejecting them. */
 export function parseOffsetDateTime(value: unknown): number | null {
   if (typeof value !== "string") {
     return null;
   }
-  const isoPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
-  if (!isoPattern.test(value)) {
+  const match =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.exec(value);
+  if (match === null) {
     return null;
   }
+
+  const [, year, month, day, hour, minute, second] = match;
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+  const daysInMonth = new Date(Number(year), monthNumber, 0).getDate();
+
+  if (monthNumber < 1 || monthNumber > 12) {
+    return null;
+  }
+  if (dayNumber < 1 || dayNumber > daysInMonth) {
+    return null;
+  }
+  if (Number(hour) > 23 || Number(minute) > 59 || Number(second) > 59) {
+    return null;
+  }
+
   const ms = Date.parse(value);
   return Number.isNaN(ms) ? null : ms;
 }
