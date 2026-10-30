@@ -1,13 +1,19 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { formatOffsetDateTime } from "./domain/datetime.js";
 import { validateEventTypeCreate } from "./domain/eventType.js";
-import type { EventTypeStore } from "./store.js";
+import { computeAvailableSlots } from "./domain/slots.js";
+import { createInMemoryBookingStore, type BookingStore, type EventTypeStore } from "./store.js";
 
 export interface AppDeps {
   eventTypes: EventTypeStore;
+  bookings?: BookingStore;
+  now?: () => number;
 }
 
 export function createApp(deps: AppDeps) {
+  const bookings = deps.bookings ?? createInMemoryBookingStore();
+  const now = deps.now ?? (() => Date.now());
   const app = new Hono();
 
   app.use(cors());
@@ -40,6 +46,32 @@ export function createApp(deps: AppDeps) {
     }
 
     return c.json(deps.eventTypes.create(result.value), 201);
+  });
+
+  app.get("/api/available-slots", (c) => {
+    const eventTypeId = c.req.query("eventTypeId");
+    if (!eventTypeId) {
+      return c.json({ code: "INVALID_REQUEST", message: "Укажите eventTypeId." }, 400);
+    }
+
+    const eventType = deps.eventTypes.get(eventTypeId);
+    if (eventType === undefined) {
+      return c.json({ code: "EVENT_TYPE_NOT_FOUND", message: "Тип события не найден." }, 404);
+    }
+
+    const result = computeAvailableSlots({
+      now: now(),
+      durationMinutes: eventType.durationMinutes,
+      bookings: bookings.list(),
+    });
+
+    return c.json({
+      eventTypeId: eventType.id,
+      durationMinutes: eventType.durationMinutes,
+      windowFrom: result.windowFrom,
+      windowTo: result.windowTo,
+      slots: result.slots.map(formatOffsetDateTime),
+    });
   });
 
   return app;

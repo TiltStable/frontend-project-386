@@ -4,6 +4,14 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:3000' | (string & {});
 };
 
+export type AvailableSlots = {
+    eventTypeId: string;
+    durationMinutes: number;
+    windowFrom: string;
+    windowTo: string;
+    slots: Array<string>;
+};
+
 export type ConflictError = {
     code: string;
     message: string;
@@ -36,6 +44,33 @@ export type ValidationError = {
     code: string;
     message: string;
 };
+
+export type AvailableSlotsApiListData = {
+    body?: never;
+    path?: never;
+    query: {
+        eventTypeId: string;
+    };
+    url: '/api/available-slots';
+};
+
+export type AvailableSlotsApiListErrors = {
+    /**
+     * The server cannot find the requested resource.
+     */
+    404: NotFoundError;
+};
+
+export type AvailableSlotsApiListError = AvailableSlotsApiListErrors[keyof AvailableSlotsApiListErrors];
+
+export type AvailableSlotsApiListResponses = {
+    /**
+     * The request has succeeded.
+     */
+    200: AvailableSlots;
+};
+
+export type AvailableSlotsApiListResponse = AvailableSlotsApiListResponses[keyof AvailableSlotsApiListResponses];
 
 export type EventTypesListData = {
     body?: never;

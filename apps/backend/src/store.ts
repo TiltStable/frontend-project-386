@@ -23,3 +23,27 @@ export function createInMemoryEventTypeStore(): EventTypeStore {
     },
   };
 }
+
+export interface BookingRecord {
+  id: string;
+  eventTypeId: string;
+  startMs: number;
+  endMs: number;
+}
+
+export interface BookingStore {
+  list(): BookingRecord[];
+  create(booking: BookingRecord): BookingRecord;
+}
+
+export function createInMemoryBookingStore(): BookingStore {
+  const items: BookingRecord[] = [];
+
+  return {
+    list: () => [...items],
+    create: (booking) => {
+      items.push(booking);
+      return booking;
+    },
+  };
+}

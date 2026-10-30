@@ -67,6 +67,18 @@ model EventTypeCreate {
   durationMinutes: int32;
 }
 
+model AvailableSlots {
+  eventTypeId: string;
+
+  durationMinutes: int32;
+
+  windowFrom: plainDate;
+
+  windowTo: plainDate;
+
+  slots: utcDateTime[];
+}
+
 @route("/health")
 interface Health {
   @get check(): HealthStatus;
@@ -81,4 +93,9 @@ interface EventTypes {
 
     @body eventType: EventType;
   } | ValidationError | ConflictError;
+}
+
+@route("/api/available-slots")
+interface AvailableSlotsApi {
+  @get list(@query eventTypeId: string): AvailableSlots | NotFoundError;
 }
