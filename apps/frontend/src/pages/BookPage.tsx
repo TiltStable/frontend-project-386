@@ -1,6 +1,11 @@
 import { Button, Card, Container, Loader, Stack, Text, Title } from "@mantine/core";
-import { useEffect, useState } from "react";
-import { availableSlotsApiList, eventTypesList, type EventType } from "../api-client";
+import { useCallback, useEffect, useState } from "react";
+import {
+  availableSlotsApiList,
+  bookingsCreate,
+  eventTypesList,
+  type EventType,
+} from "../api-client";
 
 const dayFormatter = new Intl.DateTimeFormat("ru-RU", {
   weekday: "long",
@@ -15,11 +20,18 @@ const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
   timeZone: "Europe/Moscow",
 });
 
+type BookingState =
+  | { kind: "idle" }
+  | { kind: "booking" }
+  | { kind: "booked"; message: string }
+  | { kind: "failed"; message: string };
+
 function SlotsPanel({ eventType }: { eventType: EventType }) {
   const [slots, setSlots] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [booking, setBooking] = useState<BookingState>({ kind: "idle" });
 
-  useEffect(() => {
+  const loadSlots = useCallback(() => {
     setSlots(null);
     setError(null);
     availableSlotsApiList({ query: { eventTypeId: eventType.id } })
@@ -30,6 +42,37 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
         setError(reason instanceof Error ? reason.message : String(reason));
       });
   }, [eventType.id]);
+
+  useEffect(() => {
+    setBooking({ kind: "idle" });
+    loadSlots();
+  }, [loadSlots]);
+
+  function bookSlot(slot: string) {
+    setBooking({ kind: "booking" });
+    bookingsCreate({ body: { eventTypeId: eventType.id, start: slot } })
+      .then(({ data, error }) => {
+        if (data !== undefined) {
+          setBooking({
+            kind: "booked",
+            message: `Вы записаны: ${eventType.title}, ${dayFormatter.format(new Date(slot))} в ${timeFormatter.format(new Date(slot))}.`,
+          });
+          return availableSlotsApiList({ query: { eventTypeId: eventType.id } }).then(
+            ({ data: fresh }) => {
+              setSlots(fresh?.slots ?? []);
+            },
+          );
+        }
+        setBooking({ kind: "failed", message: error?.message ?? "Не удалось забронировать слот." });
+        return undefined;
+      })
+      .catch((reason: unknown) => {
+        setBooking({
+          kind: "failed",
+          message: reason instanceof Error ? reason.message : String(reason),
+        });
+      });
+  }
 
   if (error !== null) {
     return <Text c="red">Не удалось загрузить слоты: {error}</Text>;
@@ -49,12 +92,20 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
 
   return (
     <Stack gap="sm">
+      {booking.kind === "booked" ? <Text c="teal">{booking.message}</Text> : null}
+      {booking.kind === "failed" ? <Text c="red">{booking.message}</Text> : null}
       {[...slotsByDay.entries()].map(([day, daySlots]) => (
         <div key={day}>
           <Text fw={600}>{dayFormatter.format(new Date(daySlots[0]))}</Text>
           <Button.Group>
             {daySlots.map((slot) => (
-              <Button key={slot} variant="light" size="compact-sm">
+              <Button
+                key={slot}
+                variant="light"
+                size="compact-sm"
+                disabled={booking.kind === "booking"}
+                onClick={() => bookSlot(slot)}
+              >
                 {timeFormatter.format(new Date(slot))}
               </Button>
             ))}

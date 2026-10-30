@@ -12,6 +12,19 @@ export type AvailableSlots = {
     slots: Array<string>;
 };
 
+export type Booking = {
+    id: string;
+    eventTypeId: string;
+    eventTypeTitle: string;
+    start: string;
+    end: string;
+};
+
+export type BookingCreate = {
+    eventTypeId: string;
+    start: string;
+};
+
 export type ConflictError = {
     code: string;
     message: string;
@@ -71,6 +84,39 @@ export type AvailableSlotsApiListResponses = {
 };
 
 export type AvailableSlotsApiListResponse = AvailableSlotsApiListResponses[keyof AvailableSlotsApiListResponses];
+
+export type BookingsCreateData = {
+    body: BookingCreate;
+    path?: never;
+    query?: never;
+    url: '/api/bookings';
+};
+
+export type BookingsCreateErrors = {
+    /**
+     * The server could not understand the request due to invalid syntax.
+     */
+    400: ValidationError;
+    /**
+     * The server cannot find the requested resource.
+     */
+    404: NotFoundError;
+    /**
+     * The request conflicts with the current state of the server.
+     */
+    409: ConflictError;
+};
+
+export type BookingsCreateError = BookingsCreateErrors[keyof BookingsCreateErrors];
+
+export type BookingsCreateResponses = {
+    /**
+     * The request has succeeded and a new resource has been created as a result.
+     */
+    201: Booking;
+};
+
+export type BookingsCreateResponse = BookingsCreateResponses[keyof BookingsCreateResponses];
 
 export type EventTypesListData = {
     body?: never;

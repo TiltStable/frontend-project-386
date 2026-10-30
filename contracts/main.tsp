@@ -79,6 +79,24 @@ model AvailableSlots {
   slots: utcDateTime[];
 }
 
+model Booking {
+  id: string;
+
+  eventTypeId: string;
+
+  eventTypeTitle: string;
+
+  start: utcDateTime;
+
+  end: utcDateTime;
+}
+
+model BookingCreate {
+  eventTypeId: string;
+
+  start: utcDateTime;
+}
+
 @route("/health")
 interface Health {
   @get check(): HealthStatus;
@@ -98,4 +116,13 @@ interface EventTypes {
 @route("/api/available-slots")
 interface AvailableSlotsApi {
   @get list(@query eventTypeId: string): AvailableSlots | NotFoundError;
+}
+
+@route("/api/bookings")
+interface Bookings {
+  @post create(@body body: BookingCreate): {
+    @statusCode statusCode: 201;
+
+    @body booking: Booking;
+  } | ValidationError | NotFoundError | ConflictError;
 }

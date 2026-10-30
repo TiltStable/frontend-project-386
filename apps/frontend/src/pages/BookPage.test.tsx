@@ -5,13 +5,15 @@ import { renderWithProviders } from "../test-utils";
 vi.mock("../api-client", () => ({
   eventTypesList: vi.fn(),
   availableSlotsApiList: vi.fn(),
+  bookingsCreate: vi.fn(),
 }));
 
-import { availableSlotsApiList, eventTypesList } from "../api-client";
+import { availableSlotsApiList, bookingsCreate, eventTypesList } from "../api-client";
 import BookPage from "./BookPage";
 
 const mockedEventTypesList = vi.mocked(eventTypesList);
 const mockedAvailableSlotsApiList = vi.mocked(availableSlotsApiList);
+const mockedBookingsCreate = vi.mocked(bookingsCreate);
 
 const introCall = {
   id: "intro-call",
@@ -62,5 +64,55 @@ describe("BookPage", () => {
     expect(await screen.findByText("09:00")).toBeTruthy();
     expect(screen.getByText("09:15")).toBeTruthy();
     expect(screen.getByText(/понедельник, 2 ноября/)).toBeTruthy();
+  });
+
+  it("books a slot and shows a confirmation", async () => {
+    mockedEventTypesList.mockResolvedValue({ data: [introCall] } as never);
+    mockedAvailableSlotsApiList.mockResolvedValue({
+      data: {
+        eventTypeId: "intro-call",
+        durationMinutes: 15,
+        windowFrom: "2026-10-31",
+        windowTo: "2026-11-13",
+        slots: ["2026-11-02T09:00:00+03:00"],
+      },
+    } as never);
+    mockedBookingsCreate.mockResolvedValue({
+      data: {
+        id: "b1",
+        eventTypeId: "intro-call",
+        eventTypeTitle: "Знакомство",
+        start: "2026-11-02T09:00:00+03:00",
+        end: "2026-11-02T09:15:00+03:00",
+      },
+    } as never);
+
+    renderWithProviders(<BookPage />);
+    fireEvent.click(await screen.findByText("Знакомство"));
+    fireEvent.click(await screen.findByText("09:00"));
+
+    expect(await screen.findByText(/Вы записаны: Знакомство/)).toBeTruthy();
+  });
+
+  it("shows the conflict message when the slot is already taken", async () => {
+    mockedEventTypesList.mockResolvedValue({ data: [introCall] } as never);
+    mockedAvailableSlotsApiList.mockResolvedValue({
+      data: {
+        eventTypeId: "intro-call",
+        durationMinutes: 15,
+        windowFrom: "2026-10-31",
+        windowTo: "2026-11-13",
+        slots: ["2026-11-02T09:00:00+03:00"],
+      },
+    } as never);
+    mockedBookingsCreate.mockResolvedValue({
+      error: { code: "SLOT_TAKEN", message: "Это время уже занято. Выберите другой слот." },
+    } as never);
+
+    renderWithProviders(<BookPage />);
+    fireEvent.click(await screen.findByText("Знакомство"));
+    fireEvent.click(await screen.findByText("09:00"));
+
+    expect(await screen.findByText("Это время уже занято. Выберите другой слот.")).toBeTruthy();
   });
 });
