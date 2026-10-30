@@ -68,3 +68,18 @@ describe("static serving (production mode)", () => {
     expect(await res.json()).toEqual({ status: "ok" });
   });
 });
+
+describe("static serving edge case", () => {
+  it("returns plain 404 when index.html is missing (partial build)", async () => {
+    const staticRoot = mkdtempSync(join(tmpdir(), "call-calendar-empty-"));
+    const app = createApp({
+      eventTypes: createInMemoryEventTypeStore(),
+      bookings: createInMemoryBookingStore(),
+      staticRoot,
+    });
+
+    const res = await app.request("/");
+
+    expect(res.status).toBe(404);
+  });
+});
