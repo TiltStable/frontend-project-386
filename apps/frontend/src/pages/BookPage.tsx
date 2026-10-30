@@ -32,8 +32,6 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
   const [booking, setBooking] = useState<BookingState>({ kind: "idle" });
 
   const loadSlots = useCallback(() => {
-    setSlots(null);
-    setError(null);
     availableSlotsApiList({ query: { eventTypeId: eventType.id } })
       .then(({ data }) => {
         setSlots(data?.slots ?? []);
@@ -44,7 +42,6 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
   }, [eventType.id]);
 
   useEffect(() => {
-    setBooking({ kind: "idle" });
     loadSlots();
   }, [loadSlots]);
 
@@ -170,7 +167,7 @@ export default function BookPage() {
               К выбору типа
             </Button>
             <Title order={2}>{selectedType.title}</Title>
-            <SlotsPanel eventType={selectedType} />
+            <SlotsPanel key={selectedType.id} eventType={selectedType} />
           </Stack>
         )}
       </Stack>

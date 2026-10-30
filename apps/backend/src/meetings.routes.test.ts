@@ -6,8 +6,6 @@ import {
   type EventTypeRecord,
 } from "./store.js";
 
-const MINUTE = 60_000;
-
 const INTRO_CALL: EventTypeRecord = {
   id: "intro-call",
   title: "Знакомство",
