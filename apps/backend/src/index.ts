@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { createApp } from "./app.js";
+import { createInMemoryEventTypeStore } from "./store.js";
 
 const rawPort = process.env.PORT;
 const port = rawPort === undefined ? 3000 : Number(rawPort);
@@ -8,6 +9,8 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   process.exit(1);
 }
 
-serve({ fetch: createApp().fetch, port }, (info) => {
+const app = createApp({ eventTypes: createInMemoryEventTypeStore() });
+
+serve({ fetch: app.fetch, port }, (info) => {
   console.log(`Backend is running on http://localhost:${info.port}`);
 });

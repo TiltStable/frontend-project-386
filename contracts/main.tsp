@@ -12,7 +12,73 @@ model HealthStatus {
   status: string;
 }
 
-@route("health")
+@error model ValidationError {
+  @statusCode statusCode: 400;
+
+  code: string;
+
+  message: string;
+}
+
+@error model NotFoundError {
+  @statusCode statusCode: 404;
+
+  code: string;
+
+  message: string;
+}
+
+@error model ConflictError {
+  @statusCode statusCode: 409;
+
+  code: string;
+
+  message: string;
+}
+
+model EventType {
+  id: string;
+
+  @minLength(1)
+  @maxLength(200)
+  title: string;
+
+  @maxLength(2000)
+  description: string;
+
+  @minValue(1)
+  @maxValue(480)
+  durationMinutes: int32;
+}
+
+model EventTypeCreate {
+  @pattern("^[a-z0-9-]{1,64}$")
+  id: string;
+
+  @minLength(1)
+  @maxLength(200)
+  title: string;
+
+  @maxLength(2000)
+  description: string;
+
+  @minValue(1)
+  @maxValue(480)
+  durationMinutes: int32;
+}
+
+@route("/health")
 interface Health {
   @get check(): HealthStatus;
+}
+
+@route("/api/event-types")
+interface EventTypes {
+  @get list(): EventType[];
+
+  @post create(@body body: EventTypeCreate): {
+    @statusCode statusCode: 201;
+
+    @body eventType: EventType;
+  } | ValidationError | ConflictError;
 }

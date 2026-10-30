@@ -11,6 +11,8 @@
     "dev:frontend": "npm run dev -w frontend",
     "contract:build": "tsp compile contracts",
     "client:generate": "npm run client:generate -w frontend",
+    "gen": "npm run contract:build && npm run client:generate",
+    "gen:check": "npm run gen && git diff --exit-code -- contracts/tsp-output apps/frontend/src/api-client",
     "build": "npm run build --workspaces --if-present",
     "test": "vitest run",
     "lint": "oxlint .",
