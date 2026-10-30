@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "e2e"
   ],
   "type": "module",
   "scripts": {
@@ -15,6 +16,7 @@
     "gen:check": "npm run gen && git diff --exit-code -- contracts/tsp-output apps/frontend/src/api-client",
     "build": "npm run build --workspaces --if-present",
     "test": "vitest run",
+    "e2e": "npm run test -w e2e",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format:check": "oxfmt --check .",

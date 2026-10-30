@@ -7,4 +7,6 @@ coverage/
 .env.*
 !.env.example
 .vite/
+playwright-report/
+test-results/
 MEMORY.md

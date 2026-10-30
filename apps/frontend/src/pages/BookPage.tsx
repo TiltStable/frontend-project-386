@@ -95,7 +95,7 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
       {booking.kind === "booked" ? <Text c="teal">{booking.message}</Text> : null}
       {booking.kind === "failed" ? <Text c="red">{booking.message}</Text> : null}
       {[...slotsByDay.entries()].map(([day, daySlots]) => (
-        <div key={day}>
+        <div key={day} data-day={day}>
           <Text fw={600}>{dayFormatter.format(new Date(daySlots[0]))}</Text>
           <Button.Group>
             {daySlots.map((slot) => (
@@ -105,6 +105,7 @@ function SlotsPanel({ eventType }: { eventType: EventType }) {
                 size="compact-sm"
                 disabled={booking.kind === "booking"}
                 onClick={() => bookSlot(slot)}
+                data-slot={slot}
               >
                 {timeFormatter.format(new Date(slot))}
               </Button>

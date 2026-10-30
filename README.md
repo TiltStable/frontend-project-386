@@ -118,6 +118,16 @@ mise daemons status      # состояние
 mise run check   # или npm run check без mise
 ```
 
+`mise run check` — полный набор: он дополнительно повторяет генерацию
+контракта и SDK с проверкой отсутствия изменений (`npm run gen:check`) и
+запускает браузерный e2e-сценарий (Playwright против настоящих backend
+и frontend, без подмены ответов):
+
+```bash
+npx playwright install chromium   # один раз, браузер для e2e
+npm run e2e
+```
+
 ---
 
 <details>
