@@ -1,21 +1,27 @@
 import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { formatOffsetDateTime, parseOffsetDateTime } from "./domain/datetime.js";
 import { validateEventTypeCreate } from "./domain/eventType.js";
 import { overlaps } from "./domain/overlap.js";
 import { computeAvailableSlots } from "./domain/slots.js";
 import { createInMemoryBookingStore, type BookingStore, type EventTypeStore } from "./store.js";
 
+const DEFAULT_STATIC_ROOT = "./apps/frontend/dist";
+
 export interface AppDeps {
   eventTypes: EventTypeStore;
   bookings?: BookingStore;
   now?: () => number;
+  /** Directory with the built SPA (index.html + assets), relative to cwd. */
+  staticRoot?: string;
 }
 
 export function createApp(deps: AppDeps) {
   const bookings = deps.bookings ?? createInMemoryBookingStore();
   const now = deps.now ?? (() => Date.now());
+  const staticRoot = (deps.staticRoot ?? DEFAULT_STATIC_ROOT).replaceAll("\\", "/");
   const app = new Hono();
 
   app.use(cors());
@@ -178,6 +184,10 @@ export function createApp(deps: AppDeps) {
 
     return c.json(upcoming);
   });
+
+  app.use("*", serveStatic({ root: staticRoot }));
+  app.all("/api/*", (c) => c.json({ code: "NOT_FOUND", message: "Маршрут не найден." }, 404));
+  app.get("*", serveStatic({ path: `${staticRoot}/index.html` }));
 
   return app;
 }
