@@ -34,7 +34,9 @@ test("guest books a slot and the owner sees the meeting", async ({ page, request
   expect(body.some((meeting) => meeting.eventTypeTitle === EVENT_TYPE_TITLE)).toBe(true);
 
   await page.goto("/meetings");
-  await expect(page.getByText(`${EVENT_TYPE_TITLE} — `)).toBeVisible();
+  // .first(): если сервер переиспользуется между прогонами, встреч
+  // этого типа может быть несколько.
+  await expect(page.getByText(`${EVENT_TYPE_TITLE} — `).first()).toBeVisible();
 });
 
 test("second guest booking the same slot sees a conflict message", async ({ browser }) => {

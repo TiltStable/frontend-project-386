@@ -4,16 +4,19 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   webServer: [
     {
-      command: "npm run dev:backend",
-      url: "http://localhost:3000/health",
+      // Без watch: tsx watch оставляет zombie-процесс, который держит порт
+      // после завершения Playwright и валит следующий запуск.
+      command: "npm run start:dev -w backend",
+      url: "http://127.0.0.1:3000/health",
       cwd: "..",
       name: "backend",
+      stdout: "pipe",
       timeout: 120_000,
       reuseExistingServer: !process.env.CI,
     },
     {
       command: "npm run dev:frontend",
-      url: "http://localhost:5173",
+      url: "http://127.0.0.1:5173",
       cwd: "..",
       name: "frontend",
       timeout: 120_000,
@@ -21,7 +24,7 @@ export default defineConfig({
     },
   ],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://127.0.0.1:5173",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

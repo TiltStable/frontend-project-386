@@ -11,6 +11,6 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 
 const app = createApp({ eventTypes: createInMemoryEventTypeStore() });
 
-serve({ fetch: app.fetch, port }, (info) => {
+serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, (info) => {
   console.log(`Backend is running on http://localhost:${info.port}`);
 });
