@@ -162,5 +162,22 @@ export function createApp(deps: AppDeps) {
     );
   });
 
+  app.get("/api/meetings", (c) => {
+    const currentMs = now();
+    const upcoming = bookings
+      .list()
+      .filter((booking) => booking.startMs >= currentMs)
+      .sort((a, b) => a.startMs - b.startMs)
+      .map((booking) => ({
+        id: booking.id,
+        eventTypeId: booking.eventTypeId,
+        eventTypeTitle: deps.eventTypes.get(booking.eventTypeId)?.title ?? booking.eventTypeId,
+        start: formatOffsetDateTime(booking.startMs),
+        end: formatOffsetDateTime(booking.endMs),
+      }));
+
+    return c.json(upcoming);
+  });
+
   return app;
 }

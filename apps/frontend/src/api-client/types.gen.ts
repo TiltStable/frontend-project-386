@@ -48,6 +48,14 @@ export type HealthStatus = {
     status: string;
 };
 
+export type Meeting = {
+    id: string;
+    eventTypeId: string;
+    eventTypeTitle: string;
+    start: string;
+    end: string;
+};
+
 export type NotFoundError = {
     code: string;
     message: string;
@@ -162,6 +170,22 @@ export type EventTypesCreateResponses = {
 };
 
 export type EventTypesCreateResponse = EventTypesCreateResponses[keyof EventTypesCreateResponses];
+
+export type MeetingsListData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/meetings';
+};
+
+export type MeetingsListResponses = {
+    /**
+     * The request has succeeded.
+     */
+    200: Array<Meeting>;
+};
+
+export type MeetingsListResponse = MeetingsListResponses[keyof MeetingsListResponses];
 
 export type HealthCheckData = {
     body?: never;

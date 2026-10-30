@@ -97,6 +97,18 @@ model BookingCreate {
   start: utcDateTime;
 }
 
+model Meeting {
+  id: string;
+
+  eventTypeId: string;
+
+  eventTypeTitle: string;
+
+  start: utcDateTime;
+
+  end: utcDateTime;
+}
+
 @route("/health")
 interface Health {
   @get check(): HealthStatus;
@@ -125,4 +137,9 @@ interface Bookings {
 
     @body booking: Booking;
   } | ValidationError | NotFoundError | ConflictError;
+}
+
+@route("/api/meetings")
+interface Meetings {
+  @get list(): Meeting[];
 }
