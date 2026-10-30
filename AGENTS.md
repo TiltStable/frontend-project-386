@@ -22,12 +22,17 @@
 Инструменты и версии зафиксированы в `mise.toml` (Node >= 22.18, фактически 24
 через mise). Все npm-скрипты работают и без mise.
 
-- `mise run check` — все проверки: lint, format, typecheck, test, build
-- `npm run check` — те же проверки без mise
+- `mise run check` — полный набор: lint, format, typecheck, тесты, build,
+  повторная генерация контракта/SDK с проверкой отсутствия изменений
+  (`npm run gen:check`) и браузерный e2e против настоящих серверов
+- `npm run check` — линтер, формат, типы, тесты, сборка (без e2e и gen:check:
+  набор для окружений без браузеров и git, как контейнер Хекслета)
 - `mise daemons start` / `mise daemons stop` / `mise daemons status` — фоновые
   dev-серверы (backend + frontend)
 - `npm run dev:backend` / `npm run dev:frontend` — те же серверы по отдельности
 - `npm test` — Vitest
+- `npm run e2e` — Playwright-сценарий бронирования против настоящих серверов
+  (перед первым запуском: `npx playwright install chromium`)
 - `npm run lint` / `npm run format:check` — oxlint и oxfmt
 - `npm run contract:build` — TypeSpec → OpenAPI
 - `npm run client:generate` — OpenAPI → TypeScript SDK
