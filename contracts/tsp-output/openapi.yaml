@@ -289,7 +289,3 @@ components:
           type: string
         message:
           type: string
-servers:
-  - url: http://localhost:3000
-    description: Calls Calendar API
-    variables: {}

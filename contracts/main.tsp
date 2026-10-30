@@ -2,9 +2,11 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service(#{ title: "Calls Calendar" })
+// Без @server: базовый URL не прибивается к конкретному хосту, чтобы
+// один и тот же фронтенд работал и на localhost:3000, и на прод-домене
+// (клиент фронтенда задаёт baseUrl по окружению в main.tsx).
 
-@server("http://localhost:3000", "Calls Calendar API")
+@service(#{ title: "Calls Calendar" })
 
 namespace CallsCalendar;
 
